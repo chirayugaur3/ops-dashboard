@@ -119,10 +119,10 @@ export function MapView({
         ) : (
           <>
             <MapContainer center={center} zoom={DEFAULT_ZOOM} className="h-full w-full z-0" scrollWheelZoom={true}>
-              {/* Using free CARTO dark basemap - no API key required */}
+              {/* Using free OpenStreetMap tiles - no API key required */}
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               <MapBoundsController locations={latestLocations} triggerFit={shouldFitBounds} />
               {latestLocations.map((location) => (
