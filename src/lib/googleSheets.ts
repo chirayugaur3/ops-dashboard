@@ -261,38 +261,22 @@ function parseRow(values: string[], columnMap: ColumnMap): RawPunchRecord | null
 function parseTimestamp(raw: string): Date | null {
   if (!raw) return null;
 
-  // Try various date formats
-  const formats = [
-    // ISO format
-    (s: string) => new Date(s),
-    // DD/MM/YYYY HH:mm:ss
-    (s: string) => {
-      const match = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):?(\d{2})?/);
-      if (match) {
-        const [, day, month, year, hour, minute, second = '0'] = match;
-        return new Date(+year, +month - 1, +day, +hour, +minute, +second);
-      }
-      return null;
-    },
-    // MM/DD/YYYY HH:mm:ss
-    (s: string) => {
-      const match = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):?(\d{2})?/);
-      if (match) {
-        const [, month, day, year, hour, minute, second = '0'] = match;
-        return new Date(+year, +month - 1, +day, +hour, +minute, +second);
-      }
-      return null;
-    },
-  ];
+  // Try DD/MM/YYYY HH:mm:ss format FIRST (this is what the Google Sheet uses)
+  const ddmmMatch = raw.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):?(\d{2})?/);
+  if (ddmmMatch) {
+    const [, day, month, year, hour, minute, second = '0'] = ddmmMatch;
+    // Validate that day/month are reasonable
+    const d = +day, m = +month;
+    if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+      return new Date(+year, m - 1, d, +hour, +minute, +second);
+    }
+  }
 
-  for (const format of formats) {
-    try {
-      const date = format(raw);
-      if (date && !isNaN(date.getTime())) {
-        return date;
-      }
-    } catch {
-      continue;
+  // Try ISO format as fallback (YYYY-MM-DD)
+  if (raw.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const date = new Date(raw);
+    if (!isNaN(date.getTime())) {
+      return date;
     }
   }
 
